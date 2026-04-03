@@ -2,6 +2,12 @@
     "folders": [
         {
             "path": ".AL-Go"
+        },
+        {
+            "path": "DualUoM"
+        },
+        {
+            "path": "DualUoM.Test"
         }
     ],
     "settings": {}

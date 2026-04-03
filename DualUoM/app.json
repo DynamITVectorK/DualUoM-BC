@@ -1,0 +1,27 @@
+{
+  "id": "e10bedbb-a9c9-4ac9-a156-c6c0cabef3d4",
+  "name": "DualUoM",
+  "publisher": "DynamITVectorK",
+  "version": "1.0.0.0",
+  "brief": "Dual Unit of Measure for Business Central",
+  "description": "Extends Microsoft Dynamics 365 Business Central to support tracking item quantities in two independent units of measure simultaneously.",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "24.0.0.0",
+  "idRanges": [
+    {
+      "from": 50000,
+      "to": 50099
+    }
+  ],
+  "target": "Cloud",
+  "features": [
+    "NoImplicitWith"
+  ]
+}

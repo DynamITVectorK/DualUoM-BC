@@ -1,0 +1,34 @@
+{
+  "id": "9c172656-78ac-4ab3-a6f5-c637ff60a959",
+  "name": "DualUoM Tests",
+  "publisher": "DynamITVectorK",
+  "version": "1.0.0.0",
+  "brief": "Test app for the DualUoM extension",
+  "description": "Contains AL test codeunits for the DualUoM extension.",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [
+    {
+      "id": "e10bedbb-a9c9-4ac9-a156-c6c0cabef3d4",
+      "name": "DualUoM",
+      "publisher": "DynamITVectorK",
+      "version": "1.0.0.0"
+    }
+  ],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "24.0.0.0",
+  "idRanges": [
+    {
+      "from": 50100,
+      "to": 50199
+    }
+  ],
+  "target": "Cloud",
+  "features": [
+    "NoImplicitWith"
+  ]
+}
