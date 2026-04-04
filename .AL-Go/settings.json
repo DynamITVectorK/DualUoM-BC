@@ -7,5 +7,6 @@
   "testFolders": [
     "DualUoM.Test"
   ],
-  "bcptTestFolders": []
+  "bcptTestFolders": [],
+  "environments": ["Sandbox"]
 }
