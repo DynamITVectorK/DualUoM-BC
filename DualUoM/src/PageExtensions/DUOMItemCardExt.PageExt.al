@@ -28,7 +28,7 @@ pageextension 50000 "DUOM Item Card Ext" extends "Item Card"
                 field("DUOM Fixed Ratio"; Rec."DUOM Fixed Ratio")
                 {
                     ApplicationArea = All;
-                    Enabled = Rec."DUOM Enabled";
+                    Enabled = Rec."DUOM Enabled" and (Rec."DUOM Conversion Type" = "DUOM Conversion Type"::Fixed);
                     ToolTip = 'Specifies the fixed conversion ratio from the primary to the secondary unit of measure.';
                 }
             }
