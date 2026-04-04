@@ -7,7 +7,9 @@ on:
       - '**.md'
       - '.github/workflows/*.yaml'
       - '!.github/workflows/CICD.yaml'
-    branches: [ 'main', 'release/*', 'feature/*' ]
+    branches: [ 'main', 'release/*' ]
+    # DESACTIVADO: 'feature/*' eliminado para evitar ejecución en cada commit de Copilot Agent
+    # Reactivar añadiendo: , 'feature/*'
 
 defaults:
   run:
@@ -150,36 +152,43 @@ jobs:
           getEnvironments: '*'
           type: 'CD'
 
-  CheckForUpdates:
-    needs: [ Initialization ]
-    runs-on: [ windows-latest ]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Read settings
-        uses: microsoft/AL-Go-Actions/ReadSettings@v8.3
-        with:
-          shell: powershell
-          get: templateUrl
-
-      - name: Read secrets
-        id: ReadSecrets
-        uses: microsoft/AL-Go-Actions/ReadSecrets@v8.3
-        with:
-          shell: powershell
-          gitHubSecrets: ${{ toJson(secrets) }}
-          getSecrets: 'ghTokenWorkflow'
-
-      - name: Check for updates to AL-Go system files
-        uses: microsoft/AL-Go-Actions/CheckForUpdates@v8.3
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          shell: powershell
-          templateUrl: ${{ env.templateUrl }}
-          token: ${{ fromJson(steps.ReadSecrets.outputs.Secrets).ghTokenWorkflow }}
-          downloadLatest: true
+  # ===========================================================================
+  # DESACTIVADO: CheckForUpdates
+  # Comprueba actualizaciones de AL-Go en cada push — innecesario en desarrollo
+  # activo. Consume ~5 min Windows (x2) por run.
+  # REACTIVAR: descomentar este job completo y añadirlo a PostProcess needs[]
+  # Recomendado: mover a workflow separado con trigger schedule (semanal/mensual)
+  # ===========================================================================
+  # CheckForUpdates:
+  #   needs: [ Initialization ]
+  #   runs-on: [ windows-latest ]
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+  #
+  #     - name: Read settings
+  #       uses: microsoft/AL-Go-Actions/ReadSettings@v8.3
+  #       with:
+  #         shell: powershell
+  #         get: templateUrl
+  #
+  #     - name: Read secrets
+  #       id: ReadSecrets
+  #       uses: microsoft/AL-Go-Actions/ReadSecrets@v8.3
+  #       with:
+  #         shell: powershell
+  #         gitHubSecrets: ${{ toJson(secrets) }}
+  #         getSecrets: 'ghTokenWorkflow'
+  #
+  #     - name: Check for updates to AL-Go system files
+  #       uses: microsoft/AL-Go-Actions/CheckForUpdates@v8.3
+  #       env:
+  #         GITHUB_TOKEN: ${{ github.token }}
+  #       with:
+  #         shell: powershell
+  #         templateUrl: ${{ env.templateUrl }}
+  #         token: ${{ fromJson(steps.ReadSecrets.outputs.Secrets).ghTokenWorkflow }}
+  #         downloadLatest: true
 
   Build:
     needs: [ Initialization ]
@@ -204,110 +213,131 @@ jobs:
       secrets: 'licenseFileUrl,codeSignCertificateUrl,*codeSignCertificatePassword,keyVaultCertificateUrl,*keyVaultCertificatePassword,keyVaultClientId,gitHubPackagesContext,applicationInsightsConnectionString'
       signArtifacts: true
       useArtifactCache: true
-      needsContext:  ${{ toJson(needs) }}
+      needsContext: ${{ toJson(needs) }}
 
-  BuildPP:
-    needs: [ Initialization ]
-    if: (!failure()) && (!cancelled()) && needs.Initialization.outputs.powerPlatformSolutionFolder != ''
-    name: Build PowerPlatform Solution
-    uses: ./.github/workflows/_BuildPowerPlatformSolution.yaml
-    secrets: inherit
-    with:
-      shell: ${{ needs.Initialization.outputs.githubRunnerShell }}
-      runsOn: ${{ needs.Initialization.outputs.githubRunner }}
-      parentTelemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}
-      project: ${{ needs.Initialization.outputs.powerPlatformSolutionFolder }}
-      projectName: ${{ needs.Initialization.outputs.powerPlatformSolutionFolder }}
-      publishArtifacts: ${{ github.ref_name == 'main' || startswith(github.ref_name, 'release/') || startswith(github.ref_name, 'releases/') || needs.Initialization.outputs.deliveryTargetsJson != '[]' || needs.Initialization.outputs.environmentCount > 0 }}
+  # ===========================================================================
+  # DESACTIVADO: BuildPP (Build PowerPlatform Solution)
+  # DualUoM es un PTE de BC puro sin componentes Power Platform.
+  # Este job siempre queda en skipped pero se inicializa consumiendo minutos.
+  # REACTIVAR: descomentar si en el futuro se añaden componentes Power Platform
+  # ===========================================================================
+  # BuildPP:
+  #   needs: [ Initialization ]
+  #   if: (!failure()) && (!cancelled()) && needs.Initialization.outputs.powerPlatformSolutionFolder != ''
+  #   name: Build PowerPlatform Solution
+  #   uses: ./.github/workflows/_BuildPowerPlatformSolution.yaml
+  #   secrets: inherit
+  #   with:
+  #     shell: ${{ needs.Initialization.outputs.githubRunnerShell }}
+  #     runsOn: ${{ needs.Initialization.outputs.githubRunner }}
+  #     parentTelemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}
+  #     project: ${{ needs.Initialization.outputs.powerPlatformSolutionFolder }}
+  #     projectName: ${{ needs.Initialization.outputs.powerPlatformSolutionFolder }}
+  #     publishArtifacts: ${{ github.ref_name == 'main' || startswith(github.ref_name, 'release/') || startswith(github.ref_name, 'releases/') || needs.Initialization.outputs.deliveryTargetsJson != '[]' || needs.Initialization.outputs.environmentCount > 0 }}
 
-  CodeAnalysisUpload:
-    needs: [ Initialization, Build ]
-    if: (!cancelled()) && (needs.Initialization.outputs.trackALAlertsInGitHub == 'True')
-    runs-on: [ windows-latest ]
-    name: Code Analysis Processing
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+  # ===========================================================================
+  # DESACTIVADO: CodeAnalysisUpload
+  # Sube alertas de análisis de código AL a GitHub Security (pestaña Security).
+  # Útil cuando se revisan regularmente las alertas de código.
+  # REACTIVAR: descomentar cuando DualUoM esté en fase de hardening/calidad
+  # y añadirlo a PostProcess needs[]
+  # ===========================================================================
+  # CodeAnalysisUpload:
+  #   needs: [ Initialization, Build ]
+  #   if: (!cancelled()) && (needs.Initialization.outputs.trackALAlertsInGitHub == 'True')
+  #   runs-on: [ windows-latest ]
+  #   name: Code Analysis Processing
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+  #
+  #     - name: Download artifacts - ErrorLogs
+  #       uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  #       if: (success() || failure())
+  #       with:
+  #         pattern: '*-*ErrorLogs-*'
+  #         path: '${{ github.workspace }}/ErrorLogs/'
+  #         merge-multiple: true
+  #
+  #     - name: Process AL Code Analysis Logs
+  #       id: ProcessALCodeAnalysisLogs
+  #       if: (success() || failure())
+  #       uses: microsoft/AL-Go-Actions/ProcessALCodeAnalysisLogs@v8.3
+  #       with:
+  #         shell: powershell
+  #
+  #     - name: Upload SARIF file to GitHub
+  #       uses: github/codeql-action/upload-sarif@v4
+  #       if: (success() || failure()) && (hashFiles(format('{0}/ErrorLogs/output.sarif.json',github.workspace)) != '')
+  #       with:
+  #         sarif_file: '${{ github.workspace }}/ErrorLogs/output.sarif.json'
+  #         category: "ALCodeAnalysis"
 
-      - name: Download artifacts - ErrorLogs
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-        if: (success() || failure())
-        with:
-          pattern: '*-*ErrorLogs-*'
-          path: '${{ github.workspace }}/ErrorLogs/'
-          merge-multiple: true
-
-      - name: Process AL Code Analysis Logs
-        id: ProcessALCodeAnalysisLogs
-        if: (success() || failure())
-        uses: microsoft/AL-Go-Actions/ProcessALCodeAnalysisLogs@v8.3
-        with:
-          shell: powershell
-
-      - name: Upload SARIF file to GitHub
-        uses: github/codeql-action/upload-sarif@v4
-        if: (success() || failure()) && (hashFiles(format('{0}/ErrorLogs/output.sarif.json',github.workspace)) != '')
-        with:
-          sarif_file: '${{ github.workspace }}/ErrorLogs/output.sarif.json'
-          category: "ALCodeAnalysis"
-
-  DeployALDoc:
-    needs: [ Initialization, Build ]
-    if: (!cancelled()) && (needs.Build.result == 'success' || needs.Build.result == 'skipped') && needs.Initialization.outputs.generateALDocArtifact == 1 && github.ref_name == 'main'
-    runs-on: [ windows-latest ]
-    name: Deploy Reference Documentation
-    permissions:
-      contents: read
-      actions: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Download artifacts
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-        with:
-          path: '.artifacts'
-
-      - name: Read settings
-        uses: microsoft/AL-Go-Actions/ReadSettings@v8.3
-        with:
-          shell: powershell
-
-      - name: Determine ArtifactUrl
-        id: determineArtifactUrl
-        uses: microsoft/AL-Go-Actions/DetermineArtifactUrl@v8.3
-        with:
-          shell: powershell
-
-      - name: Setup Pages
-        if: needs.Initialization.outputs.deployALDocArtifact == 1
-        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
-
-      - name: Build Reference Documentation
-        uses: microsoft/AL-Go-Actions/BuildReferenceDocumentation@v8.3
-        with:
-          shell: powershell
-          artifacts: '.artifacts'
-          artifactUrl: ${{ env.artifact }}
-
-      - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
-        with:
-          path: ".aldoc/_site/"
-
-      - name: Deploy to GitHub Pages
-        if: needs.Initialization.outputs.deployALDocArtifact == 1
-        id: deployment
-        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
+  # ===========================================================================
+  # DESACTIVADO: DeployALDoc (Documentación de referencia en GitHub Pages)
+  # Genera web de documentación técnica AL publicada en GitHub Pages.
+  # URL resultante: https://dynamitvectork.github.io/DualUoM-BC/
+  # En fase de desarrollo activo la doc queda obsoleta en horas.
+  # REACTIVAR: descomentar cuando DualUoM alcance v1.0 estable para publicar
+  # como producto Dynamit, y añadirlo a PostProcess needs[]
+  # ===========================================================================
+  # DeployALDoc:
+  #   needs: [ Initialization, Build ]
+  #   if: (!cancelled()) && (needs.Build.result == 'success' || needs.Build.result == 'skipped') && needs.Initialization.outputs.generateALDocArtifact == 1 && github.ref_name == 'main'
+  #   runs-on: [ windows-latest ]
+  #   name: Deploy Reference Documentation
+  #   permissions:
+  #     contents: read
+  #     actions: read
+  #     pages: write
+  #     id-token: write
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+  #
+  #     - name: Download artifacts
+  #       uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+  #       with:
+  #         path: '.artifacts'
+  #
+  #     - name: Read settings
+  #       uses: microsoft/AL-Go-Actions/ReadSettings@v8.3
+  #       with:
+  #         shell: powershell
+  #
+  #     - name: Determine ArtifactUrl
+  #       id: determineArtifactUrl
+  #       uses: microsoft/AL-Go-Actions/DetermineArtifactUrl@v8.3
+  #       with:
+  #         shell: powershell
+  #
+  #     - name: Setup Pages
+  #       if: needs.Initialization.outputs.deployALDocArtifact == 1
+  #       uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
+  #
+  #     - name: Build Reference Documentation
+  #       uses: microsoft/AL-Go-Actions/BuildReferenceDocumentation@v8.3
+  #       with:
+  #         shell: powershell
+  #         artifacts: '.artifacts'
+  #         artifactUrl: ${{ env.artifact }}
+  #
+  #     - name: Upload pages artifact
+  #       uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
+  #       with:
+  #         path: ".aldoc/_site/"
+  #
+  #     - name: Deploy to GitHub Pages
+  #       if: needs.Initialization.outputs.deployALDocArtifact == 1
+  #       id: deployment
+  #       uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
 
   Deploy:
-    needs: [ Initialization, Build, BuildPP ]
-    if: (!cancelled()) && (needs.Build.result == 'success' || needs.Build.result == 'skipped') && (needs.BuildPP.result == 'success' || needs.BuildPP.result == 'skipped') && needs.Initialization.outputs.environmentCount > 0
+    needs: [ Initialization, Build ]
+    if: (!cancelled()) && (needs.Build.result == 'success' || needs.Build.result == 'skipped') && needs.Initialization.outputs.environmentCount > 0
     strategy: ${{ fromJson(needs.Initialization.outputs.environmentsMatrixJson) }}
     runs-on: ${{ fromJson(matrix.os) }}
     name: Deploy to ${{ matrix.environment }}
@@ -374,8 +404,8 @@ jobs:
           deploymentEnvironmentsJson: ${{ needs.Initialization.outputs.deploymentEnvironmentsJson }}
 
   Deliver:
-    needs: [ Initialization, Build, BuildPP ]
-    if: (!cancelled()) && (needs.Build.result == 'success' || needs.Build.result == 'skipped') && (needs.BuildPP.result == 'success' || needs.BuildPP.result == 'skipped') && needs.Initialization.outputs.deliveryTargetsJson != '[]'
+    needs: [ Initialization, Build ]
+    if: (!cancelled()) && (needs.Build.result == 'success' || needs.Build.result == 'skipped') && needs.Initialization.outputs.deliveryTargetsJson != '[]'
     strategy:
       matrix:
         deliveryTarget: ${{ fromJson(needs.Initialization.outputs.deliveryTargetsJson) }}
@@ -416,7 +446,9 @@ jobs:
           artifacts: '.artifacts'
 
   PostProcess:
-    needs: [ Initialization, Build, BuildPP, Deploy, Deliver, DeployALDoc, CodeAnalysisUpload ]
+    needs: [ Initialization, Build, Deploy, Deliver ]
+    # NOTA: Si reactivas jobs comentados, añádelos aquí también:
+    # needs: [ Initialization, Build, Deploy, Deliver, DeployALDoc, CodeAnalysisUpload ]
     if: (!cancelled())
     runs-on: [ windows-latest ]
     steps:
