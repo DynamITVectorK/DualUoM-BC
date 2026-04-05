@@ -13,7 +13,7 @@ pageextension 50000 "DUOM Item Card Ext" extends "Item Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies whether dual unit of measure tracking is enabled for this item.';
                 }
-                field("DUOM Secondary Unit of Measure Code"; Rec."DUOM Secondary Unit of Measure Code")
+                field("DUOM Secondary UoM Code"; Rec."DUOM Secondary UoM Code")
                 {
                     ApplicationArea = All;
                     Enabled = Rec."DUOM Enabled";

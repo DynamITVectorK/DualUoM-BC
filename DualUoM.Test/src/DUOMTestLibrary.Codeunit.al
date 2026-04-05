@@ -1,4 +1,4 @@
-codeunit 50100 "DUOM Test Library"
+codeunit 50150 "DUOM Test Library"
 {
     /// <summary>
     /// Shared helper codeunit for all DUOM test codeunits.
@@ -14,7 +14,7 @@ codeunit 50100 "DUOM Test Library"
     begin
         Item.Init();
         Item."DUOM Enabled" := true;
-        Item."DUOM Secondary Unit of Measure Code" := SecondaryUoMCode;
+        Item."DUOM Secondary UoM Code" := SecondaryUoMCode;
         Item."DUOM Conversion Type" := "DUOM Conversion Type"::Fixed;
         Item."DUOM Fixed Ratio" := FixedRatio;
     end;
@@ -27,7 +27,7 @@ codeunit 50100 "DUOM Test Library"
     begin
         Item.Init();
         Item."DUOM Enabled" := true;
-        Item."DUOM Secondary Unit of Measure Code" := SecondaryUoMCode;
+        Item."DUOM Secondary UoM Code" := SecondaryUoMCode;
         Item."DUOM Conversion Type" := "DUOM Conversion Type"::Variable;
     end;
 }
