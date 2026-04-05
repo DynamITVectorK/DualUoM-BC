@@ -2,19 +2,17 @@ codeunit 50102 "DUOM Item Setup Test"
 {
     Subtype = Test;
 
-    /// <summary>
-    /// Tests for DUOM item setup validation rules implemented in "DUOM Item Setup Facade"
-    /// and "DUOM Item Setup Handler".
-    ///
-    /// Rules under test:
-    ///   - DUOM disabled  → no validation required
-    ///   - DUOM enabled   → Secondary UoM Code is required
-    ///   - Conversion Type = Fixed → Fixed Ratio must be greater than zero
-    ///   - Conversion Type = Variable or Always Variable → Fixed Ratio is not required
-    /// </summary>
-
     var
         Assert: Codeunit Assert;
+
+    // Tests for DUOM item setup validation rules implemented in "DUOM Item Setup Facade"
+    // and "DUOM Item Setup Handler".
+    //
+    // Rules under test:
+    //   - DUOM disabled  → no validation required
+    //   - DUOM enabled   → Secondary UoM Code is required
+    //   - Conversion Type = Fixed → Fixed Ratio must be greater than zero
+    //   - Conversion Type = Variable or Always Variable → Fixed Ratio is not required
 
     [Test]
     procedure GivenDUOMDisabled_WhenValidateItemSetup_ThenNoErrorIsRaised()
