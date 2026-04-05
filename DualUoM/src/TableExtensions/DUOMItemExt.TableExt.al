@@ -9,9 +9,9 @@ tableextension 50000 "DUOM Item Ext" extends Item
 
             trigger OnValidate()
             var
-                DUOMSetupMgt: Codeunit "DUOM Setup Management";
+                DUOMItemSetupFacade: Codeunit "DUOM Item Setup Facade";
             begin
-                DUOMSetupMgt.ValidateItemSetup(Rec);
+                DUOMItemSetupFacade.ValidateItemSetup(Rec);
             end;
         }
         field(50001; "DUOM Secondary Unit of Measure Code"; Code[10])
@@ -22,9 +22,9 @@ tableextension 50000 "DUOM Item Ext" extends Item
 
             trigger OnValidate()
             var
-                DUOMSetupMgt: Codeunit "DUOM Setup Management";
+                DUOMItemSetupFacade: Codeunit "DUOM Item Setup Facade";
             begin
-                DUOMSetupMgt.ValidateItemSetup(Rec);
+                DUOMItemSetupFacade.ValidateItemSetup(Rec);
             end;
         }
         field(50002; "DUOM Conversion Type"; Enum "DUOM Conversion Type")
@@ -34,9 +34,9 @@ tableextension 50000 "DUOM Item Ext" extends Item
 
             trigger OnValidate()
             var
-                DUOMSetupMgt: Codeunit "DUOM Setup Management";
+                DUOMItemSetupFacade: Codeunit "DUOM Item Setup Facade";
             begin
-                DUOMSetupMgt.ValidateItemSetup(Rec);
+                DUOMItemSetupFacade.ValidateItemSetup(Rec);
             end;
         }
         field(50003; "DUOM Fixed Ratio"; Decimal)
@@ -47,9 +47,9 @@ tableextension 50000 "DUOM Item Ext" extends Item
 
             trigger OnValidate()
             var
-                DUOMSetupMgt: Codeunit "DUOM Setup Management";
+                DUOMItemSetupFacade: Codeunit "DUOM Item Setup Facade";
             begin
-                DUOMSetupMgt.ValidateItemSetup(Rec);
+                DUOMItemSetupFacade.ValidateItemSetup(Rec);
             end;
         }
     }

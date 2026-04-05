@@ -3,7 +3,8 @@ codeunit 50102 "DUOM Item Setup Test"
     Subtype = Test;
 
     /// <summary>
-    /// Tests for DUOM item setup validation rules implemented in "DUOM Setup Management".
+    /// Tests for DUOM item setup validation rules implemented in "DUOM Item Setup Facade"
+    /// and "DUOM Item Setup Handler".
     ///
     /// Rules under test:
     ///   - DUOM disabled  → no validation required
@@ -12,27 +13,32 @@ codeunit 50102 "DUOM Item Setup Test"
     ///   - Conversion Type = Variable or Always Variable → Fixed Ratio is not required
     /// </summary>
 
+    var
+        Assert: Codeunit Assert;
+
     [Test]
-    procedure TestValidSetup_DUOMDisabled()
+    procedure GivenDUOMDisabled_WhenValidateItemSetup_ThenNoErrorIsRaised()
     var
         Item: Record Item;
-        DUOMSetupMgt: Codeunit "DUOM Setup Management";
+        DUOMItemSetupFacade: Codeunit "DUOM Item Setup Facade";
     begin
-        // Arrange – DUOM disabled; other fields empty
+        // Arrange
+        Initialize();
         Item.Init();
         Item."DUOM Enabled" := false;
 
         // Act + Assert – no error expected
-        DUOMSetupMgt.ValidateItemSetup(Item);
+        DUOMItemSetupFacade.ValidateItemSetup(Item);
     end;
 
     [Test]
-    procedure TestValidSetup_FixedConversionType()
+    procedure GivenFixedConversionTypeWithPositiveRatio_WhenValidateItemSetup_ThenNoErrorIsRaised()
     var
         Item: Record Item;
-        DUOMSetupMgt: Codeunit "DUOM Setup Management";
+        DUOMItemSetupFacade: Codeunit "DUOM Item Setup Facade";
     begin
-        // Arrange – DUOM enabled, secondary UoM set, Fixed type with positive ratio
+        // Arrange
+        Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
         Item."DUOM Secondary Unit of Measure Code" := 'KG';
@@ -40,16 +46,17 @@ codeunit 50102 "DUOM Item Setup Test"
         Item."DUOM Fixed Ratio" := 2.5;
 
         // Act + Assert – no error expected
-        DUOMSetupMgt.ValidateItemSetup(Item);
+        DUOMItemSetupFacade.ValidateItemSetup(Item);
     end;
 
     [Test]
-    procedure TestValidSetup_VariableConversionType()
+    procedure GivenVariableConversionType_WhenValidateItemSetup_ThenNoErrorIsRaised()
     var
         Item: Record Item;
-        DUOMSetupMgt: Codeunit "DUOM Setup Management";
+        DUOMItemSetupFacade: Codeunit "DUOM Item Setup Facade";
     begin
-        // Arrange – DUOM enabled, secondary UoM set, Variable type (no ratio required)
+        // Arrange
+        Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
         Item."DUOM Secondary Unit of Measure Code" := 'KG';
@@ -57,16 +64,17 @@ codeunit 50102 "DUOM Item Setup Test"
         Item."DUOM Fixed Ratio" := 0;
 
         // Act + Assert – no error expected
-        DUOMSetupMgt.ValidateItemSetup(Item);
+        DUOMItemSetupFacade.ValidateItemSetup(Item);
     end;
 
     [Test]
-    procedure TestValidSetup_AlwaysVariableConversionType()
+    procedure GivenAlwaysVariableConversionType_WhenValidateItemSetup_ThenNoErrorIsRaised()
     var
         Item: Record Item;
-        DUOMSetupMgt: Codeunit "DUOM Setup Management";
+        DUOMItemSetupFacade: Codeunit "DUOM Item Setup Facade";
     begin
-        // Arrange – DUOM enabled, secondary UoM set, Always Variable type (no ratio required)
+        // Arrange
+        Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
         Item."DUOM Secondary Unit of Measure Code" := 'KG';
@@ -74,31 +82,36 @@ codeunit 50102 "DUOM Item Setup Test"
         Item."DUOM Fixed Ratio" := 0;
 
         // Act + Assert – no error expected
-        DUOMSetupMgt.ValidateItemSetup(Item);
+        DUOMItemSetupFacade.ValidateItemSetup(Item);
     end;
 
     [Test]
-    procedure TestInvalidSetup_EnabledWithoutSecondaryUoM()
+    procedure GivenDUOMEnabledWithoutSecondaryUoM_WhenValidateItemSetup_ThenErrorIsRaised()
     var
         Item: Record Item;
-        DUOMSetupMgt: Codeunit "DUOM Setup Management";
+        DUOMItemSetupFacade: Codeunit "DUOM Item Setup Facade";
     begin
-        // Arrange – DUOM enabled but secondary UoM code is missing
+        // Arrange
+        Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
         Item."DUOM Secondary Unit of Measure Code" := '';
 
         // Act + Assert – error expected
-        asserterror DUOMSetupMgt.ValidateItemSetup(Item);
+        asserterror DUOMItemSetupFacade.ValidateItemSetup(Item);
+        Assert.IsTrue(
+            GetLastErrorText().Contains('DUOM Secondary Unit of Measure Code is required when DUOM is enabled.'),
+            'Expected error about missing secondary unit of measure.');
     end;
 
     [Test]
-    procedure TestInvalidSetup_FixedType_ZeroRatio()
+    procedure GivenFixedConversionTypeWithZeroRatio_WhenValidateItemSetup_ThenErrorIsRaised()
     var
         Item: Record Item;
-        DUOMSetupMgt: Codeunit "DUOM Setup Management";
+        DUOMItemSetupFacade: Codeunit "DUOM Item Setup Facade";
     begin
-        // Arrange – DUOM enabled, Fixed type, ratio = 0
+        // Arrange
+        Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
         Item."DUOM Secondary Unit of Measure Code" := 'KG';
@@ -106,16 +119,20 @@ codeunit 50102 "DUOM Item Setup Test"
         Item."DUOM Fixed Ratio" := 0;
 
         // Act + Assert – error expected
-        asserterror DUOMSetupMgt.ValidateItemSetup(Item);
+        asserterror DUOMItemSetupFacade.ValidateItemSetup(Item);
+        Assert.IsTrue(
+            GetLastErrorText().Contains('DUOM Fixed Ratio must be greater than zero when Conversion Type is Fixed.'),
+            'Expected error about zero fixed ratio.');
     end;
 
     [Test]
-    procedure TestInvalidSetup_FixedType_NegativeRatio()
+    procedure GivenFixedConversionTypeWithNegativeRatio_WhenValidateItemSetup_ThenErrorIsRaised()
     var
         Item: Record Item;
-        DUOMSetupMgt: Codeunit "DUOM Setup Management";
+        DUOMItemSetupFacade: Codeunit "DUOM Item Setup Facade";
     begin
-        // Arrange – DUOM enabled, Fixed type, negative ratio
+        // Arrange
+        Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
         Item."DUOM Secondary Unit of Measure Code" := 'KG';
@@ -123,6 +140,13 @@ codeunit 50102 "DUOM Item Setup Test"
         Item."DUOM Fixed Ratio" := -1;
 
         // Act + Assert – error expected
-        asserterror DUOMSetupMgt.ValidateItemSetup(Item);
+        asserterror DUOMItemSetupFacade.ValidateItemSetup(Item);
+        Assert.IsTrue(
+            GetLastErrorText().Contains('DUOM Fixed Ratio must be greater than zero when Conversion Type is Fixed.'),
+            'Expected error about negative fixed ratio.');
+    end;
+
+    local procedure Initialize()
+    begin
     end;
 }

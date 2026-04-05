@@ -14,10 +14,18 @@ codeunit 50101 "DUOM Foundation Test"
     ///   - DUOM Item Ledger Entry Test      (posting and ledger entry dual fields)
     /// </summary>
 
+    var
+        Assert: Codeunit Assert;
+
     [Test]
-    procedure TestInfrastructureIsReady()
+    procedure GivenTestApp_WhenLoaded_ThenInfrastructureIsReady()
     begin
         // This test verifies that the DualUoM test app is compiled and runnable.
         // Successful execution confirms the test infrastructure is in place for TDD work.
+        Initialize();
+    end;
+
+    local procedure Initialize()
+    begin
     end;
 }
