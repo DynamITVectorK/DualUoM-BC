@@ -14,9 +14,9 @@ tableextension 50000 "DUOM Item Ext" extends Item
                 DUOMItemSetupFacade.ValidateItemSetup(Rec);
             end;
         }
-        field(50001; "DUOM Secondary Unit of Measure Code"; Code[10])
+        field(50001; "DUOM Secondary UoM Code"; Code[10])
         {
-            Caption = 'DUOM Secondary Unit of Measure Code';
+            Caption = 'DUOM Secondary UoM Code';
             DataClassification = CustomerContent;
             TableRelation = "Unit of Measure";
 

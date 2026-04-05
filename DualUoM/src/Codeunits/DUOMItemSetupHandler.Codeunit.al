@@ -8,13 +8,13 @@ codeunit 50001 "DUOM Item Setup Handler"
     /// </summary>
     procedure ValidateItemSetup(Item: Record Item)
     var
-        SecondaryUoMRequiredErr: Label 'DUOM Secondary Unit of Measure Code is required when DUOM is enabled.';
+        SecondaryUoMRequiredErr: Label 'DUOM Secondary UoM Code is required when DUOM is enabled.';
         FixedRatioRequiredErr: Label 'DUOM Fixed Ratio must be greater than zero when Conversion Type is Fixed.';
     begin
         if not Item."DUOM Enabled" then
             exit;
 
-        if Item."DUOM Secondary Unit of Measure Code" = '' then
+        if Item."DUOM Secondary UoM Code" = '' then
             Error(SecondaryUoMRequiredErr);
 
         if Item."DUOM Conversion Type" = "DUOM Conversion Type"::Fixed then

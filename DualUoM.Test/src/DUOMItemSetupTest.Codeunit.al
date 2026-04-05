@@ -39,7 +39,7 @@ codeunit 50102 "DUOM Item Setup Test"
         Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
-        Item."DUOM Secondary Unit of Measure Code" := 'KG';
+        Item."DUOM Secondary UoM Code" := 'KG';
         Item."DUOM Conversion Type" := "DUOM Conversion Type"::Fixed;
         Item."DUOM Fixed Ratio" := 2.5;
 
@@ -57,7 +57,7 @@ codeunit 50102 "DUOM Item Setup Test"
         Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
-        Item."DUOM Secondary Unit of Measure Code" := 'KG';
+        Item."DUOM Secondary UoM Code" := 'KG';
         Item."DUOM Conversion Type" := "DUOM Conversion Type"::Variable;
         Item."DUOM Fixed Ratio" := 0;
 
@@ -75,7 +75,7 @@ codeunit 50102 "DUOM Item Setup Test"
         Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
-        Item."DUOM Secondary Unit of Measure Code" := 'KG';
+        Item."DUOM Secondary UoM Code" := 'KG';
         Item."DUOM Conversion Type" := "DUOM Conversion Type"::"Always Variable";
         Item."DUOM Fixed Ratio" := 0;
 
@@ -93,12 +93,12 @@ codeunit 50102 "DUOM Item Setup Test"
         Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
-        Item."DUOM Secondary Unit of Measure Code" := '';
+        Item."DUOM Secondary UoM Code" := '';
 
         // Act + Assert – error expected
         asserterror DUOMItemSetupFacade.ValidateItemSetup(Item);
         Assert.IsTrue(
-            GetLastErrorText().Contains('DUOM Secondary Unit of Measure Code is required when DUOM is enabled.'),
+            GetLastErrorText().Contains('DUOM Secondary UoM Code is required when DUOM is enabled.'),
             'Expected error about missing secondary unit of measure.');
     end;
 
@@ -112,7 +112,7 @@ codeunit 50102 "DUOM Item Setup Test"
         Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
-        Item."DUOM Secondary Unit of Measure Code" := 'KG';
+        Item."DUOM Secondary UoM Code" := 'KG';
         Item."DUOM Conversion Type" := "DUOM Conversion Type"::Fixed;
         Item."DUOM Fixed Ratio" := 0;
 
@@ -133,7 +133,7 @@ codeunit 50102 "DUOM Item Setup Test"
         Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
-        Item."DUOM Secondary Unit of Measure Code" := 'KG';
+        Item."DUOM Secondary UoM Code" := 'KG';
         Item."DUOM Conversion Type" := "DUOM Conversion Type"::Fixed;
         Item."DUOM Fixed Ratio" := -1;
 
