@@ -3,7 +3,7 @@ codeunit 50151 "DUOM Foundation Test"
     Subtype = Test;
 
     var
-        Assert: Codeunit Assert;
+        LibraryAssert: Codeunit "Library Assert";
 
     // Initial test codeunit for the DualUoM extension.
     // Verifies that the test app compiles and the test runner can execute procedures.

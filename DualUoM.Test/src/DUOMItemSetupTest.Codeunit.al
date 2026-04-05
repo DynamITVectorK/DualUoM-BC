@@ -3,7 +3,7 @@ codeunit 50152 "DUOM Item Setup Test"
     Subtype = Test;
 
     var
-        Assert: Codeunit Assert;
+        LibraryAssert: Codeunit "Library Assert";
 
     // Tests for DUOM item setup validation rules implemented in "DUOM Item Setup Facade"
     // and "DUOM Item Setup Handler".
@@ -97,7 +97,7 @@ codeunit 50152 "DUOM Item Setup Test"
 
         // Act + Assert – error expected
         asserterror DUOMItemSetupFacade.ValidateItemSetup(Item);
-        Assert.IsTrue(
+        LibraryAssert.IsTrue(
             GetLastErrorText().Contains('DUOM Secondary UoM Code is required when DUOM is enabled.'),
             'Expected error about missing secondary unit of measure.');
     end;
@@ -118,7 +118,7 @@ codeunit 50152 "DUOM Item Setup Test"
 
         // Act + Assert – error expected
         asserterror DUOMItemSetupFacade.ValidateItemSetup(Item);
-        Assert.IsTrue(
+        LibraryAssert.IsTrue(
             GetLastErrorText().Contains('DUOM Fixed Ratio must be greater than zero when Conversion Type is Fixed.'),
             'Expected error about zero fixed ratio.');
     end;
@@ -139,7 +139,7 @@ codeunit 50152 "DUOM Item Setup Test"
 
         // Act + Assert – error expected
         asserterror DUOMItemSetupFacade.ValidateItemSetup(Item);
-        Assert.IsTrue(
+        LibraryAssert.IsTrue(
             GetLastErrorText().Contains('DUOM Fixed Ratio must be greater than zero when Conversion Type is Fixed.'),
             'Expected error about negative fixed ratio.');
     end;
