@@ -1,4 +1,4 @@
-codeunit 50101 "DUOM Foundation Test"
+codeunit 50151 "DUOM Foundation Test"
 {
     Subtype = Test;
 

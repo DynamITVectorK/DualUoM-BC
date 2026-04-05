@@ -1,4 +1,4 @@
-codeunit 50102 "DUOM Item Setup Test"
+codeunit 50152 "DUOM Item Setup Test"
 {
     Subtype = Test;
 
