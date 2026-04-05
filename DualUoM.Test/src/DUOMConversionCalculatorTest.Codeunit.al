@@ -1,4 +1,4 @@
-codeunit 50153 "DUOM Conversion Calculator Test"
+codeunit 50153 "DUOM Conversion Calc Test"
 {
     Subtype = Test;
 
