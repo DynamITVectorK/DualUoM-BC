@@ -30,6 +30,97 @@ This repository contains **DualUoM**, a Per-Tenant Extension (PTE) for Microsoft
 
 Refer to `/.github/instructions/al.instructions.md` for detailed AL language rules and conventions.
 
+## AL Test Conventions
+
+The following conventions and known pitfalls **must** be followed in every test codeunit. They were discovered during DualUoM development and prevent recurring CI failures.
+
+### Correct Assert declaration
+
+Always declare the assert helper as `LibraryAssert` using the quoted `"Library Assert"` codeunit. Using the unquoted `Assert` codeunit causes compiler error **AL0185**.
+
+```al
+// CORRECT
+var
+    LibraryAssert: Codeunit "Library Assert";
+
+// INCORRECT — causes AL0185
+var
+    Assert: Codeunit Assert;
+```
+
+All assertion calls must use `LibraryAssert.AreEqual(...)`, `LibraryAssert.IsTrue(...)`, `LibraryAssert.IsFalse(...)`, etc.
+
+### Test app dependencies in app.json
+
+The test app must declare `Library Assert` with a **fixed version number**. Do **not** use `$(app_minimumVersion)` — this causes download errors in the AL-Go pipeline.
+
+```json
+{
+    "id": "dd0be2ea-f733-4d65-bb34-a28f4624fb14",
+    "name": "Library Assert",
+    "publisher": "Microsoft",
+    "version": "27.0.0.0"
+}
+```
+
+Do **not** add `Tests-TestLibraries` or `System Application Test Library` as dependencies unless the issue explicitly requires them.
+
+### XML doc comments in test codeunits
+
+XML doc comments (`///`) **cannot** be placed between `Subtype = Test;` and the `var` block — the AL compiler rejects them in that position. Use plain `//` comments there instead.
+
+```al
+// CORRECT — plain comment after Subtype declaration
+codeunit 50151 "DUOM Foundation Test"
+{
+    Subtype = Test;
+
+    var
+        LibraryAssert: Codeunit "Library Assert";
+
+    // Describes the tests in this codeunit.
+    [Test]
+    procedure MyTest()
+    ...
+}
+
+// INCORRECT — /// between Subtype and var causes a compiler error
+codeunit 50151 "DUOM Foundation Test"
+{
+    Subtype = Test;
+    /// <summary>This will fail to compile.</summary>
+    var
+        LibraryAssert: Codeunit "Library Assert";
+    ...
+}
+```
+
+### Field name length
+
+Field names in table extensions must not exceed **30 characters** (compiler error **AL0468**). Always count the full length of `DUOM <Description>` before declaring a new field.
+
+### Object ID ranges
+
+| App | Folder | Range |
+|-----|--------|-------|
+| Production | `DualUoM/` | 50000 – 50099 |
+| Test | `DualUoM.Test/` | 50150 – 50199 |
+
+Each app must use only the range declared in its own `app.json`. Never share ranges between the two apps.
+
+### Test method naming
+
+Test procedure names must follow the `Given/When/Then` pattern:
+
+```
+Given<State>_When<Action>_Then<Result>
+```
+
+Examples:
+- `GivenDUOMDisabled_WhenValidateItemSetup_ThenNoErrorIsRaised`
+- `GivenFixedConversionTypeWithZeroRatio_WhenValidateItemSetup_ThenErrorIsRaised`
+- `GivenTestApp_WhenLoaded_ThenInfrastructureIsReady`
+
 ## Repository Structure
 
 ```

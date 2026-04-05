@@ -32,10 +32,14 @@ applyTo: "**/*.al"
 
 - **Write the test codeunit first.** The test must compile and fail (red) before production code is written.
 - Use the `[Test]` attribute on every test procedure.
-- Use `Assert.AreEqual`, `Assert.IsTrue`, `Assert.IsFalse`, and `Error` for assertions — do not use silent checks.
+- Declare the assert helper as `LibraryAssert: Codeunit "Library Assert";` — never use `Assert: Codeunit Assert` (causes AL0185).
+- Use `LibraryAssert.AreEqual`, `LibraryAssert.IsTrue`, `LibraryAssert.IsFalse` for assertions — do not use silent checks.
+- Name test procedures using the `Given<State>_When<Action>_Then<Result>` pattern.
 - Each test procedure must test exactly one behaviour (one logical assertion group).
 - Test codeunits must not depend on live company data; always create isolated test records.
 - Clean up test data in a `[TearDown]` procedure or by using `Commit()` with isolated test companies.
+- Do not place `///` XML doc comments between `Subtype = Test;` and the `var` block — use plain `//` comments there.
+- Field names must not exceed 30 characters (AL0468); count the full `DUOM <Description>` length before declaring.
 
 ## Code Structure
 
