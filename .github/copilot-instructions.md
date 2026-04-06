@@ -4,31 +4,83 @@
 
 This repository contains **DualUoM**, a Per-Tenant Extension (PTE) for Microsoft Dynamics 365 Business Central SaaS. The extension implements a dual unit-of-measure model for items, allowing quantities to be tracked simultaneously in two independent units (e.g. pieces and kilograms).
 
-## Development Philosophy
+## Core Principles
 
-### Issue-focused increments
+These principles apply to **all** work in this repository:
 
-- **Work only on the assigned issue.** Each pull request must address exactly one GitHub Issue.
+- **Extension-only development** — Never modify base application objects. Use tableextensions, pageextensions, and event subscribers exclusively.
+- **Issue-focused increments** — Each pull request must address exactly one GitHub Issue. Do not implement functionality described in other issues.
+- **Test-Driven Development (TDD)** — Write the test codeunit before production code. A feature is complete only when its AL tests pass in the AL-Go CI pipeline.
+- **No hardcode** — Never embed literal UoM codes, conversion factors, or magic strings. Use `Label` variables, setup tables, and procedure parameters.
+- **Scope discipline** — Do not add posting, warehouse, setup tables, or pages unless the issue explicitly requires them.
+- **Human-in-the-Loop** — Flag any decision that changes existing behaviour or architecture in a PR comment before implementing it.
+
+### Issue-focused increments (detail)
+
 - Do not implement functionality that is described in other issues, even if it seems related or convenient.
-- If you discover that completing the current issue requires a change that belongs to a different issue, stop and flag this in a PR comment rather than implementing it silently.
+- If completing the current issue requires a change that belongs to a different issue, stop and flag this in a PR comment rather than implementing it silently.
 
-### Test-Driven Development (TDD)
+### TDD (detail)
 
-- **Write the test before writing production code.** Every new feature or behaviour must be covered by an AL test codeunit before implementation begins.
-- **Compilation alone is not enough.** A feature is not complete unless its AL tests pass in the AL-Go CI pipeline.
 - Tests must cover the happy path and key error/edge-case paths defined in the issue acceptance criteria.
 - Do not merge code that causes existing tests to fail.
 
-### Scope discipline
+### Scope discipline (detail)
 
 - Do not add posting logic unless the issue explicitly requires it.
 - Do not add warehouse management logic unless the issue explicitly requires it.
 - Do not create setup tables or pages unless the issue explicitly requires it.
 - Do not implement DUOM business functionality in issues that are marked as documentation or foundation only.
 
+## Feature Work Routing
+
+Use the table below to choose the right implementation approach based on scope:
+
+| Complexity | Criteria | Approach |
+|------------|----------|----------|
+| **LOW** | Single object, no integrations | Write spec comment in issue → implement directly |
+| **MEDIUM** | 2–3 objects, internal integrations | Draft architecture note in issue → TDD cycle |
+| **HIGH** | 4+ objects, cross-module, posting | Full design document in `docs/` → phased TDD |
+
+When in doubt, start at MEDIUM and escalate.
+
 ## AL Coding Standards
 
-Refer to `/.github/instructions/al.instructions.md` for detailed AL language rules and conventions.
+Refer to `/.github/instructions/al.instructions.md` for the complete set of AL language rules and conventions. The sections below highlight the most critical rules for this project.
+
+### Architecture: Facade + Handler
+
+Every feature module **must** follow the Facade + Handler pattern:
+
+| Role | Access | Responsibility |
+|------|--------|----------------|
+| `DUOM <Feature> Facade` | `public` | Single public API consumed by extensions and other modules. Contains no business logic — delegates entirely to the Handler. |
+| `DUOM <Feature> Handler` | `Internal` | Contains all business logic. Never called directly from outside the module. |
+
+```al
+// Table/page extension: call Facade only
+trigger OnValidate()
+var
+    DUOMItemSetupFacade: Codeunit "DUOM Item Setup Facade";
+begin
+    DUOMItemSetupFacade.ValidateItemSetup(Rec);
+end;
+
+// Facade: thin delegation layer
+procedure ValidateItemSetup(Item: Record Item)
+var
+    DUOMItemSetupHandler: Codeunit "DUOM Item Setup Handler";
+begin
+    DUOMItemSetupHandler.ValidateItemSetup(Item);
+end;
+
+// Handler (Access = Internal): business logic lives here
+codeunit 50001 "DUOM Item Setup Handler"
+{
+    Access = Internal;
+    procedure ValidateItemSetup(Item: Record Item) ...
+}
+```
 
 ### No hardcode
 
@@ -57,6 +109,20 @@ var
 // INCORRECT — bare string literal scattered across test methods
 Item."DUOM Secondary UoM Code" := 'KG';
 ```
+
+### Performance
+
+- Use `SetLoadFields` to load only the fields needed by a procedure.
+- Filter records as early as possible before iterating (`SetRange`, `SetFilter`).
+- Prefer `FindSet` with `repeat … until Next() = 0` over `Find('-')` / `Find('+')` loops.
+- Avoid unnecessary `Commit()` calls inside loops.
+- Use temporary tables for in-memory processing when the result set is not persisted.
+
+### User-facing strings and XLIFF
+
+- Every user-visible string (captions, error messages, tooltips) must be declared as a `Label` variable.
+- XLIFF translation files are generated automatically by the AL compiler — do not edit `.xlf` files manually.
+- Use `Locked = true` only for strings that must **not** be translated (internal tokens, UoM fixture codes in tests).
 
 ## AL Test Conventions
 
@@ -164,7 +230,16 @@ Examples:
 │   ├── instructions/
 │   │   └── al.instructions.md    # AL-specific coding rules
 │   └── workflows/               # AL-Go CI/CD workflows
-└── (AL app folders will be added per Epic)
+├── DualUoM/                      # Production extension (IDs 50000–50099)
+│   ├── app.json
+│   └── src/
+│       ├── Codeunits/           # Facade + Handler codeunits
+│       ├── Enum/
+│       ├── PageExtensions/
+│       └── TableExtensions/
+└── DualUoM.Test/                 # Test extension (IDs 50150–50199)
+    ├── app.json
+    └── src/                     # Test codeunits and test library
 ```
 
 ## Definition of Done
@@ -177,3 +252,45 @@ A pull request is ready to merge when:
 - [ ] Code follows the AL conventions in `al.instructions.md`.
 - [ ] The PR scope is limited to the assigned issue — no unrelated changes.
 - [ ] A human reviewer has approved the PR.
+
+## Reference Documentation
+
+### Microsoft Documentation
+
+- [AL Language Reference](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-reference-overview)
+- [Business Central Extension Development](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/)
+- [AL-Go for GitHub](https://github.com/microsoft/AL-Go)
+- [Table Extension (AL)](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-table-ext-object)
+- [Event Subscribers (AL)](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-subscribing-to-events)
+
+### This Project's Documentation
+
+- [Functional Design](../docs/02-functional/functional-design.md)
+- [Architecture & Data Model](../docs/03-architecture/architecture-data-model.md)
+- [Test Plan](../docs/06-testing/test-plan.md)
+- [AL Development Instructions](instructions/al.instructions.md)
+
+## Copilot Interaction Tips
+
+### 1. Provide context up front
+
+> "I'm implementing issue #42 — adding a secondary UoM quantity field to item ledger entries."
+
+Avoid vague prompts like "add a field".
+
+### 2. Reference the pattern
+
+Ask Copilot to follow the Facade + Handler pattern explicitly if generating codeunits:
+
+> "Generate a Facade codeunit and an internal Handler codeunit following the DualUoM Facade+Handler pattern."
+
+### 3. Always review generated code
+
+- Verify all strings are declared as `Label` variables (no hardcode).
+- Confirm object IDs are within the correct app range.
+- Check field name lengths do not exceed 30 characters.
+- Ensure test procedures use `LibraryAssert`, not `Assert`.
+
+### 4. Use `al.instructions.md` for style
+
+The auto-applied instruction file `.github/instructions/al.instructions.md` governs naming, structure, and patterns. You do not need to repeat those rules in every prompt — they are active on all `*.al` files.
