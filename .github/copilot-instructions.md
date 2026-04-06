@@ -30,6 +30,34 @@ This repository contains **DualUoM**, a Per-Tenant Extension (PTE) for Microsoft
 
 Refer to `/.github/instructions/al.instructions.md` for detailed AL language rules and conventions.
 
+### No hardcode
+
+**Never** hardcode values in AL code. Examples of prohibited hardcode:
+
+- Unit of measure codes (`'KG'`, `'PCS'`, `'UN'`, etc.)
+- Numeric conversion factors
+- Serial numbers, prefixes, or ranges
+- Literal error texts outside a `Label` variable
+- Record IDs
+
+#### How to resolve existing hardcode
+
+1. **Labels** — use `Label` variables (with `Locked = true`) for all string constants, including error messages and display texts.
+2. **Setup tables** — use setup tables for user-configurable values that vary by company or deployment.
+3. **Parameters** — pass context-specific values as procedure parameters rather than reading global state.
+4. If a hardcoded value is found in the current code, investigate whether an appropriate setup table exists and migrate the value there.
+
+> **In test code**, use `Label` variables with `Locked = true` to define string constants used in test fixtures (e.g., test UoM codes). This avoids literal string duplication across test methods and keeps test code consistent with the same convention.
+
+```al
+// CORRECT — Label constant for a test fixture value
+var
+    KGUoMCodeTok: Label 'KG', Locked = true;
+
+// INCORRECT — bare string literal scattered across test methods
+Item."DUOM Secondary UoM Code" := 'KG';
+```
+
 ## AL Test Conventions
 
 The following conventions and known pitfalls **must** be followed in every test codeunit. They were discovered during DualUoM development and prevent recurring CI failures.

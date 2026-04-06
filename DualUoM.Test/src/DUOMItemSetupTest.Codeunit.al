@@ -4,6 +4,7 @@ codeunit 50152 "DUOM Item Setup Test"
 
     var
         LibraryAssert: Codeunit "Library Assert";
+        KGUoMCodeTok: Label 'KG', Locked = true;
 
     // Tests for DUOM item setup validation rules implemented in "DUOM Item Setup Facade"
     // and "DUOM Item Setup Handler".
@@ -39,7 +40,7 @@ codeunit 50152 "DUOM Item Setup Test"
         Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
-        Item."DUOM Secondary UoM Code" := 'KG';
+        Item."DUOM Secondary UoM Code" := KGUoMCodeTok;
         Item."DUOM Conversion Type" := "DUOM Conversion Type"::Fixed;
         Item."DUOM Fixed Ratio" := 2.5;
 
@@ -57,7 +58,7 @@ codeunit 50152 "DUOM Item Setup Test"
         Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
-        Item."DUOM Secondary UoM Code" := 'KG';
+        Item."DUOM Secondary UoM Code" := KGUoMCodeTok;
         Item."DUOM Conversion Type" := "DUOM Conversion Type"::Variable;
         Item."DUOM Fixed Ratio" := 0;
 
@@ -75,7 +76,7 @@ codeunit 50152 "DUOM Item Setup Test"
         Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
-        Item."DUOM Secondary UoM Code" := 'KG';
+        Item."DUOM Secondary UoM Code" := KGUoMCodeTok;
         Item."DUOM Conversion Type" := "DUOM Conversion Type"::"Always Variable";
         Item."DUOM Fixed Ratio" := 0;
 
@@ -112,7 +113,7 @@ codeunit 50152 "DUOM Item Setup Test"
         Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
-        Item."DUOM Secondary UoM Code" := 'KG';
+        Item."DUOM Secondary UoM Code" := KGUoMCodeTok;
         Item."DUOM Conversion Type" := "DUOM Conversion Type"::Fixed;
         Item."DUOM Fixed Ratio" := 0;
 
@@ -133,7 +134,7 @@ codeunit 50152 "DUOM Item Setup Test"
         Initialize();
         Item.Init();
         Item."DUOM Enabled" := true;
-        Item."DUOM Secondary UoM Code" := 'KG';
+        Item."DUOM Secondary UoM Code" := KGUoMCodeTok;
         Item."DUOM Conversion Type" := "DUOM Conversion Type"::Fixed;
         Item."DUOM Fixed Ratio" := -1;
 

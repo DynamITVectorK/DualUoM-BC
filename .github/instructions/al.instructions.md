@@ -48,6 +48,24 @@ applyTo: "**/*.al"
 - Use `OnAfterValidate` triggers to react to field changes; call codeunit procedures for the actual logic.
 - Avoid using `FIND('-')` / `FIND('+')` loops; prefer `FindSet` with `repeat … until`.
 
+## No Hardcode
+
+**Never** hardcode values in AL code. Examples of prohibited hardcode:
+
+- Unit of measure codes (`'KG'`, `'PCS'`, `'UN'`, etc.)
+- Numeric conversion factors
+- Serial numbers, prefixes, or ranges
+- Literal error texts outside a `Label` variable
+- Record IDs
+
+How to resolve:
+
+1. **Labels** — use `Label` variables (with `Locked = true`) for all string constants.
+2. **Setup tables** — use setup tables for values that are user-configurable per company.
+3. **Parameters** — pass context values as procedure parameters instead of reading global state.
+
+In test code, define string fixtures as `Label` variables with `Locked = true` (e.g., test UoM codes) to avoid duplicating bare string literals across test methods.
+
 ## Error Handling
 
 - Use `Error()` with a descriptive message label (use `Label` variables, not string literals).
