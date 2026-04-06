@@ -48,6 +48,17 @@ applyTo: "**/*.al"
 - Use `OnAfterValidate` triggers to react to field changes; call codeunit procedures for the actual logic.
 - Avoid using `FIND('-')` / `FIND('+')` loops; prefer `FindSet` with `repeat … until`.
 
+### Facade + Handler pattern
+
+Every feature module **must** follow this two-codeunit pattern:
+
+| Role | Access | Responsibility |
+|------|--------|----------------|
+| `DUOM <Feature> Facade` | `public` | Thin public API. Delegates all logic to the Handler. No business logic allowed here. |
+| `DUOM <Feature> Handler` | `Internal` | Business logic. Never called directly from outside the module. |
+
+Table and page extensions call only the Facade, never the Handler directly.
+
 ## No Hardcode
 
 **Never** hardcode values in AL code. Examples of prohibited hardcode:
@@ -65,6 +76,19 @@ How to resolve:
 3. **Parameters** — pass context values as procedure parameters instead of reading global state.
 
 In test code, define string fixtures as `Label` variables with `Locked = true` (e.g., test UoM codes) to avoid duplicating bare string literals across test methods.
+
+## Performance
+
+- Use `SetLoadFields` to load only the fields required by a procedure before calling `FindSet` or `Get`.
+- Apply `SetRange` / `SetFilter` before iterating to avoid loading unneeded records.
+- Avoid `Commit()` inside loops.
+- Use temporary tables for in-memory processing when the result does not need to be persisted.
+
+## User-Facing Strings and XLIFF
+
+- Every caption, error message, or tooltip visible to users must be a `Label` variable.
+- XLIFF files (`.xlf`) are generated automatically by the compiler — do not edit them manually.
+- Use `Locked = true` only for strings that must **not** be translated (internal tokens, test fixture codes).
 
 ## Error Handling
 
