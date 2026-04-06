@@ -5,6 +5,7 @@ codeunit 50153 "DUOM Conversion Calc Test"
     var
         LibraryAssert: Codeunit "Library Assert";
         DUOMTestLibrary: Codeunit "DUOM Test Library";
+        KGUoMCodeTok: Label 'KG', Locked = true;
 
     // Tests for DUOM quantity conversion implemented in "DUOM Conversion Facade"
     // and "DUOM Conversion Handler".
@@ -25,7 +26,7 @@ codeunit 50153 "DUOM Conversion Calc Test"
     begin
         // Arrange
         Initialize();
-        DUOMTestLibrary.CreateDUOMItemFixed(Item, 'KG', 2.5);
+        DUOMTestLibrary.CreateDUOMItemFixed(Item, KGUoMCodeTok, 2.5);
 
         // Act
         Result := DUOMConversionFacade.ConvertKGToPCS(Item, 10, 2.5);
@@ -43,7 +44,7 @@ codeunit 50153 "DUOM Conversion Calc Test"
     begin
         // Arrange
         Initialize();
-        DUOMTestLibrary.CreateDUOMItemFixed(Item, 'KG', 2.5);
+        DUOMTestLibrary.CreateDUOMItemFixed(Item, KGUoMCodeTok, 2.5);
 
         // Act
         Result := DUOMConversionFacade.ConvertPCSToKG(Item, 4, 2.5);
@@ -60,7 +61,7 @@ codeunit 50153 "DUOM Conversion Calc Test"
     begin
         // Arrange
         Initialize();
-        DUOMTestLibrary.CreateDUOMItemFixed(Item, 'KG', 0);
+        DUOMTestLibrary.CreateDUOMItemFixed(Item, KGUoMCodeTok, 0);
 
         // Act + Assert – error expected
         asserterror DUOMConversionFacade.ConvertKGToPCS(Item, 10, 0);
@@ -77,7 +78,7 @@ codeunit 50153 "DUOM Conversion Calc Test"
     begin
         // Arrange
         Initialize();
-        DUOMTestLibrary.CreateDUOMItemFixed(Item, 'KG', 2.5);
+        DUOMTestLibrary.CreateDUOMItemFixed(Item, KGUoMCodeTok, 2.5);
 
         // Act + Assert – error expected
         asserterror DUOMConversionFacade.ConvertKGToPCS(Item, -5, 2.5);
